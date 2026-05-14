@@ -5,21 +5,10 @@ import { useChat } from '../hooks/useChat';
 
 export default function ChatLayout() {
   const {
-    messages,
-    balance,
-    isThinking,
-    thinkingSteps,
-    isRecording,
-    expenses,
-    income,
-    scrollRef,
-    handleAudioInput,
-    handleImageInput,
-    handleTextInput,
-    resetChat,
-    canRecordAudio,
-    canUploadImage,
-    isComplete,
+    messages, balance, isThinking, thinkingSteps, isRecording, isTyping,
+    expenses, income, scrollRef, historicalData,
+    handleAudioInput, handleImageInput, handleTextInput, handleQuickReply, resetChat,
+    canRecordAudio, canUploadImage, isInteractive,
   } = useChat();
 
   return (
@@ -29,9 +18,12 @@ export default function ChatLayout() {
         messages={messages}
         isThinking={isThinking}
         thinkingSteps={thinkingSteps}
+        isTyping={isTyping}
         income={income}
         expenses={expenses}
+        historicalData={historicalData}
         scrollRef={scrollRef}
+        onQuickReply={handleQuickReply}
       />
       <InputBar
         onAudioInput={handleAudioInput}
@@ -41,7 +33,8 @@ export default function ChatLayout() {
         canUploadImage={canUploadImage}
         isRecording={isRecording}
         isThinking={isThinking}
-        isComplete={isComplete}
+        isTyping={isTyping}
+        isInteractive={isInteractive}
       />
     </div>
   );

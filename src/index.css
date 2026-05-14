@@ -212,3 +212,12 @@ html, body, #root {
 .input-focus-ring:focus-within {
   box-shadow: 0 0 0 1px var(--color-accent);
 }
+
+/* Hide scrollbar for quick replies */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
