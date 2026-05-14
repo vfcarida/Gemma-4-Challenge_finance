@@ -7,6 +7,7 @@ export default function Header({ balance, previousBalance, onReset }) {
   const [isAnimating, setIsAnimating] = useState(false);
   const prevBalanceRef = useRef(balance);
 
+  // Animate balance changes
   useEffect(() => {
     if (balance !== prevBalanceRef.current) {
       setIsAnimating(true);
@@ -38,7 +39,7 @@ export default function Header({ balance, previousBalance, onReset }) {
 
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-panel-header border-b border-border z-10 shrink-0">
-      {/* Left: Avatar + Name */}
+      {/* Left side: Assistant Identity */}
       <div className="flex items-center gap-3">
         <div className="relative">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-lg">
@@ -48,13 +49,13 @@ export default function Header({ balance, previousBalance, onReset }) {
         </div>
         <div>
           <h1 className="text-base font-semibold text-text-primary tracking-tight">
-            GemaFin
+            GemmaFin
           </h1>
           <p className="text-xs text-accent">online</p>
         </div>
       </div>
 
-      {/* Right: Balance + Reset */}
+      {/* Right side: Interactive Balance & Controls */}
       <div className="flex items-center gap-3">
         <div className="text-right">
           <p className="text-[10px] uppercase tracking-wider text-text-muted font-medium">

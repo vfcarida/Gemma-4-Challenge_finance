@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Toolti
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { formatCurrency } from '../hooks/useChat';
 
+// ── Custom Tooltip for detailed month-over-month data ──
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     return (
@@ -20,6 +21,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
   const totalIncome = income.reduce((s, i) => s + i.value, 0);
   const totalExpenses = expenses.reduce((s, e) => s + e.value, 0);
 
+  // Retrieve historical context from mock database
   const prevMonth = historicalData?.['abril'] || { income: [], expenses: [] };
   const prevIncome = prevMonth.income.reduce((s, i) => s + i.value, 0);
   const prevExpenses = prevMonth.expenses.reduce((s, e) => s + e.value, 0);
@@ -34,7 +36,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
     { month: 'Mai', Receitas: totalIncome, Despesas: totalExpenses },
   ];
 
-  // Category breakdown with comparison
+  // Category breakdown with automated comparison logic
   const allCategories = new Set();
   expenses.forEach((e) => allCategories.add(e.category));
   prevMonth.expenses.forEach((e) => allCategories.add(e.category));
@@ -58,7 +60,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
             <h3 className="text-sm font-semibold text-text-primary">📊 Relatório Mensal — Maio</h3>
           </div>
 
-          {/* Summary */}
+          {/* Monthly Financial Summary Cards */}
           <div className="grid grid-cols-2 gap-2 px-4 py-2">
             <div className="bg-income/10 rounded-lg p-2.5 border border-income/20">
               <span className="text-[10px] uppercase tracking-wider text-income font-medium">Receitas</span>
@@ -76,7 +78,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
             </div>
           </div>
 
-          {/* Grouped bar chart */}
+          {/* Grouped Bar Visualization for Historical Tracking */}
           <div className="px-4 py-2">
             <ResponsiveContainer width="100%" height={150}>
               <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barCategoryGap="25%">
@@ -91,7 +93,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
             </ResponsiveContainer>
           </div>
 
-          {/* Category breakdown */}
+          {/* Per-Category Trend Breakdown */}
           <div className="px-4 pb-2">
             <p className="text-[10px] uppercase tracking-wider text-text-muted font-medium mb-2">Despesas por categoria</p>
             <div className="space-y-1.5">
@@ -111,7 +113,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
             </div>
           </div>
 
-          {/* Net balance */}
+          {/* Net Liquid Balance Footer */}
           <div className="px-4 pb-4 pt-1">
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
               <span className="text-xs text-text-secondary">Saldo líquido</span>

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-const STORAGE_KEY = 'gemafin_state';
+const STORAGE_KEY = 'gemmafin_state';
 
 const DEMO_STATES = {
   IDLE_AFTER_WELCOME: 'IDLE_AFTER_WELCOME',
@@ -49,6 +49,7 @@ export function formatCurrency(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
+// ── Persistence Helpers ──
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -64,7 +65,7 @@ function saveState(state) {
 const welcomeMessage = {
   id: 'welcome',
   type: 'bot',
-  content: 'Olá! Sou o GemaFin, seu assistente financeiro inteligente. 👋\n\nComo posso ajudar com suas finanças hoje? Pode mandar áudio, foto de recibo ou digitar qualquer pergunta sobre suas finanças.',
+  content: 'Olá! Sou o GemmaFin, seu assistente financeiro inteligente. 👋\n\nComo posso ajudar com suas finanças hoje? Pode mandar áudio, foto de recibo ou digitar qualquer pergunta sobre suas finanças.',
   timestamp: timestamp(),
   icon: 'bot',
   suggestedReplies: ['🎤 Enviar áudio', '📎 Enviar imagem', '❓ O que você faz?'],
@@ -72,11 +73,12 @@ const welcomeMessage = {
 
 // ── Smart response engine ──
 function findSmartResponse(text, { income, expenses }) {
+  // Normalize text for matching
   const lower = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const totalIncome = income.reduce((s, i) => s + i.value, 0);
   const totalExpenses = expenses.reduce((s, e) => s + e.value, 0);
 
-  // Mercado query
+  // Grocery query
   if (lower.includes('mercado') || lower.includes('supermercado') || lower.includes('alimenta')) {
     const currentMercado = expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
     const prevMercado = HISTORICAL_DATA['abril'].expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
@@ -96,7 +98,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Resumo / relatório
+  // Summary / report
   if (lower.includes('resumo') || lower.includes('relatorio') || lower.includes('visao geral') || lower.includes('ver resumo')) {
     return {
       thinkSteps: [
@@ -111,7 +113,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Meta / orçamento
+  // Goal / budget
   if (lower.includes('meta') || lower.includes('orcamento') || lower.includes('objetivo') || lower.includes('definir')) {
     return {
       thinkSteps: [
@@ -126,7 +128,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Dicas de economia
+  // Savings tips
   if (lower.includes('dica') || lower.includes('economizar') || lower.includes('economia') || lower.includes('poupar') || lower.includes('guardar')) {
     return {
       thinkSteps: [
@@ -139,7 +141,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Quanto gastei
+  // Spending query
   if (lower.includes('quanto gastei') || lower.includes('gastos') || lower.includes('despesa')) {
     const breakdown = expenses.reduce((acc, e) => {
       acc[e.category] = (acc[e.category] || 0) + e.value;
@@ -157,7 +159,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Quanto ganhei
+  // Income query
   if (lower.includes('quanto ganhei') || lower.includes('receita') || lower.includes('renda') || lower.includes('ganho')) {
     const breakdown = income.reduce((acc, i) => {
       acc[i.category] = (acc[i.category] || 0) + i.value;
@@ -175,7 +177,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Extrato
+  // Transaction history / Statement
   if (lower.includes('extrato') || lower.includes('transac') || lower.includes('historico') || lower.includes('moviment')) {
     return {
       thinkSteps: [
@@ -187,7 +189,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Ajuda / o que faz
+  // Help / Capabilities
   if (lower.includes('ajuda') || lower.includes('o que voce faz') || lower.includes('o que vc faz') || lower.includes('funcionalidade') || lower.includes('como funciona')) {
     return {
       thinkSteps: [
@@ -209,7 +211,7 @@ function findSmartResponse(text, { income, expenses }) {
     };
   }
 
-  // Fallback
+  // Fallback response
   return {
     thinkSteps: [
       { icon: '📝', text: 'Análise de entrada: Processando texto livre...' },
@@ -235,10 +237,12 @@ export function useChat() {
 
   const scrollRef = useRef(null);
 
+  // Persistence effect
   useEffect(() => {
     saveState({ messages, balance, demoPhase, expenses, income });
   }, [messages, balance, demoPhase, expenses, income]);
 
+  // Scroll to bottom helper
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       if (scrollRef.current) {
@@ -247,12 +251,13 @@ export function useChat() {
     }, 100);
   }, []);
 
+  // Add message helper
   const addMessage = useCallback((msg) => {
     setMessages((prev) => [...prev, { ...msg, id: Date.now() + Math.random(), timestamp: timestamp() }]);
     scrollToBottom();
   }, [scrollToBottom]);
 
-  // ── Audio Input Demo ──
+  // ── Audio Input Simulation ──
   const handleAudioInput = useCallback(() => {
     if (demoPhase !== DEMO_STATES.IDLE_AFTER_WELCOME) return;
     setDemoPhase(DEMO_STATES.AUDIO_INPUT);
@@ -305,7 +310,7 @@ export function useChat() {
     }, 1500);
   }, [demoPhase, addMessage, scrollToBottom]);
 
-  // ── Image Input Demo ──
+  // ── Image Input Simulation ──
   const handleImageInput = useCallback(() => {
     if (demoPhase !== DEMO_STATES.IDLE_AFTER_AUDIO) return;
     setDemoPhase(DEMO_STATES.IMAGE_INPUT);
@@ -346,13 +351,13 @@ export function useChat() {
     }, 800);
   }, [demoPhase, addMessage, scrollToBottom]);
 
-  // ── Smart text input ──
+  // ── Smart text input handling ──
   const handleTextInput = useCallback((text) => {
     if (!text.trim()) return;
 
     addMessage({ type: 'user', content: text, icon: 'text' });
 
-    // If demo hasn't started, guide user
+    // Handle initial state guide
     if (demoPhase === DEMO_STATES.IDLE_AFTER_WELCOME) {
       setTimeout(() => {
         setIsTyping(true);
@@ -370,7 +375,7 @@ export function useChat() {
       return;
     }
 
-    // If between audio and image, guide to image
+    // Handle mid-demo state guide
     if (demoPhase === DEMO_STATES.IDLE_AFTER_AUDIO) {
       setTimeout(() => {
         setIsTyping(true);
@@ -388,7 +393,7 @@ export function useChat() {
       return;
     }
 
-    // Interactive mode — smart responses
+    // Interactive mode — process via smart engine
     const smart = findSmartResponse(text, { income, expenses });
 
     if (smart.skipThinking) {
@@ -408,7 +413,7 @@ export function useChat() {
       return;
     }
 
-    // Show thinking for complex queries
+    // Process with thinking animation
     setTimeout(() => {
       if (smart.thinkSteps.length > 0) {
         setIsThinking(true);
@@ -449,7 +454,7 @@ export function useChat() {
     }, 500);
   }, [demoPhase, addMessage, scrollToBottom, income, expenses]);
 
-  // ── Handle quick reply ──
+  // ── Unified Quick Reply Handler ──
   const handleQuickReply = useCallback((text) => {
     if (text === '🎤 Enviar áudio') {
       handleAudioInput();
@@ -460,6 +465,7 @@ export function useChat() {
     }
   }, [handleAudioInput, handleImageInput, handleTextInput]);
 
+  // ── State Reset ──
   const resetChat = useCallback(() => {
     setMessages([{ ...welcomeMessage, timestamp: timestamp() }]);
     setBalance(0);

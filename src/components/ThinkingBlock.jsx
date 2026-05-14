@@ -4,11 +4,12 @@ import { Brain, ChevronDown, ChevronUp, Zap } from 'lucide-react';
 export default function ThinkingBlock({ steps, isComplete }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
+  // This component visualizes the agentic reasoning process of Gemma 4
   return (
     <div className="flex justify-start w-full animate-slide-up">
       <div className="max-w-[85%] md:max-w-[65%] w-full">
         <div className="glass-card rounded-lg overflow-hidden">
-          {/* Header */}
+          {/* Header with expand/collapse functionality */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition-colors"
@@ -23,8 +24,8 @@ export default function ThinkingBlock({ steps, isComplete }) {
               </div>
               <span className="text-sm font-medium text-accent">
                 {isComplete
-                  ? '🧠 Gemma 4 processou'
-                  : '🧠 Gemma 4 está pensando...'}
+                   ? '🧠 Gemma 4 processou'
+                   : '🧠 Gemma 4 está pensando...'}
               </span>
             </div>
             {isExpanded ? (
@@ -34,10 +35,10 @@ export default function ThinkingBlock({ steps, isComplete }) {
             )}
           </button>
 
-          {/* Steps */}
+          {/* Reasoning steps list */}
           {isExpanded && (
             <div className="px-4 pb-3 space-y-1.5">
-              {/* Mode indicator */}
+              {/* Agentic Mode indicator */}
               <div className="flex items-center gap-1.5 mb-2">
                 <Zap className="w-3 h-3 text-yellow-500" />
                 <span className="text-[10px] font-mono uppercase tracking-wider text-yellow-500/80">
@@ -58,7 +59,7 @@ export default function ThinkingBlock({ steps, isComplete }) {
                 </div>
               ))}
 
-              {/* Loading indicator when not complete */}
+              {/* Typing indicator while thinking is in progress */}
               {!isComplete && (
                 <div className="flex items-center gap-2 px-2 py-1">
                   <div className="flex gap-1">

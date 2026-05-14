@@ -1,6 +1,6 @@
 import { Mic, CheckCheck } from 'lucide-react';
 
-// ── Simple markdown-like bold parser ──
+// ── Simple markdown-like bold parser for chat bubbles ──
 function renderContent(text) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
@@ -32,7 +32,7 @@ export default function MessageBubble({ message }) {
             : 'bg-bot-bubble bubble-tail-left rounded-tl-none'
         }`}
       >
-        {/* Audio waveform indicator */}
+        {/* Audio waveform visualization (simulated) */}
         {isAudio && (
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
@@ -54,12 +54,12 @@ export default function MessageBubble({ message }) {
           </div>
         )}
 
-        {/* Text content */}
+        {/* Dynamic Text Content */}
         <p className="text-sm leading-relaxed text-text-primary whitespace-pre-line">
           {renderContent(message.content)}
         </p>
 
-        {/* Timestamp + Read Receipt */}
+        {/* Footer: Timestamp and Message Status */}
         <div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-[10px] text-text-muted">{message.timestamp}</span>
           {isUser && (
