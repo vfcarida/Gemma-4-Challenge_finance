@@ -101,7 +101,26 @@ GemmaFin doesn't just chat; it acts. Using Gemma 4's native `<|think|>` reasonin
 
 GemmaFin is designed as an offline-first Progressive Web App (PWA). Since the MVP does not connect to a real backend running the Gemma model, the "Agentic" behavior is rigorously simulated via a local state machine in React.
 
-[antigravity inserir como está a estrutura de pastas e organização]
+```text
+GemmaFin/
+├── public/                 # Static assets (banner, icons)
+├── src/
+│   ├── components/         # UI Components (Cards, Chat bubbles, Indicators)
+│   │   ├── BudgetGoalCard.jsx
+│   │   ├── ChatLayout.jsx
+│   │   ├── ComparisonCard.jsx
+│   │   ├── FullReportCard.jsx
+│   │   ├── WarningCard.jsx
+│   │   └── ...
+│   ├── hooks/              # Custom hooks (Core logic & state)
+│   │   └── useChat.js      # The "Smart Engine" and demo orchestration
+│   ├── App.jsx             # Main application entry
+│   ├── index.css           # Global styles and Tailwind imports
+│   └── main.jsx            # React DOM mounting
+├── package.json            # Dependencies and scripts
+└── vite.config.js          # Vite configuration
+```
+
 
 *   **State Management (`useChat.js`)**: Acts as the orchestrator. It manages the conversational memory (messages array), the financial ledger (income/expenses arrays), and the current balance. Data is persisted in `LocalStorage` under `gemmafin_state`.
 *   **Smart Engine**: A deterministic NLP-like keyword matcher that simulates the capabilities of Gemma 4's intent recognition. It parses user text, extracts relevant entities (like prices or categories), and routes the query to specific "skills" (like generating a report or providing savings tips).
@@ -156,7 +175,15 @@ We implemented specific high-level advisory modules to showcase the analytical p
 ---
 
 ## 🎯 Demo Flow (End-to-End)
-[antigravity inserir o fluxo da demo]
+1.  **Welcome & Context:** The user is greeted by GemmaFin, which introduces its capabilities.
+2.  **Multimodal Capture (Audio):** The user triggers an audio simulation (e.g., reporting a 'bico' of R$ 200).
+3.  **Agentic Reasoning (`<|think|>`):** The AI displays its internal thought process: extracting values, categorizing, and updating the ledger.
+4.  **Multimodal Capture (Image):** The user sends a bank statement screenshot. The AI performs simulated OCR and identifies a R$ 80 grocery expense.
+5.  **Proactive Insight:** GemmaFin detects an 11% increase in grocery spending compared to the previous month and issues a contextual saving tip.
+6.  **Interactive Querying:** The user asks natural language questions like "Quanto ganhei esse mês?" or "Me mostre o resumo".
+7.  **Complex Advisory (POS Engine):** The user asks if they should buy a fridge in installments or cash. The AI analyzes their current liquidity (R$ 70) and recommends installments to preserve their emergency fund.
+8.  **Debt Rescue Alert:** If the user mentions paying the minimum on their card, the AI triggers a visual warning card comparing revolving interest (14%) vs. a personal loan (3%).
+
 
 ## 📺 Demo
 
