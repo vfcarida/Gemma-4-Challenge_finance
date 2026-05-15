@@ -35,7 +35,6 @@ The AI autonomously parses these unstructured multimodal inputs, categorizes the
 
 ## 🧠 How I Used Gemma 4
 
-## How I Used Gemma 4
 To build a financial assistant for vulnerable populations, two things are absolutely non-negotiable: **Privacy and Zero-Friction Multimodality**. For these reasons, the **Gemma 4 E2B** (Effective 2 Billion) model was the perfect and only logical fit for this architecture.
 
 Here is how Gemma 4 E2B powers the core of GemmaFin:
