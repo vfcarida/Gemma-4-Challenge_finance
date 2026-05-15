@@ -187,8 +187,7 @@ We implemented specific high-level advisory modules to showcase the analytical p
 
 ## 📺 Demo
 
-[Watch the Demo Video](https://your-video-link-here.com)  
-*(Insert your video link here showing the Antigravity MVP recording)*
+[Watch the Demo Video](https://youtu.be/O0pLj4ibITQ)  
 
 ---
 
