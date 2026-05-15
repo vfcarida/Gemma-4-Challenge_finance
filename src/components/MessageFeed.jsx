@@ -7,6 +7,7 @@ import BudgetGoalCard from './BudgetGoalCard';
 import ImageBubble from './ImageBubble';
 import TypingIndicator from './TypingIndicator';
 import QuickReplies from './QuickReplies';
+import WarningCard from './WarningCard';
 
 export default function MessageFeed({
   messages,
@@ -47,6 +48,9 @@ export default function MessageFeed({
           }
           if (data.type === '__BUDGET_GOAL__') {
             return <BudgetGoalCard key={msg.id} />;
+          }
+          if (data.type === '__DEBT_WARNING__') {
+            return <WarningCard key={msg.id} />;
           }
           return null;
         }

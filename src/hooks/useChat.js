@@ -78,6 +78,56 @@ function findSmartResponse(text, { income, expenses }) {
   const totalIncome = income.reduce((s, i) => s + i.value, 0);
   const totalExpenses = expenses.reduce((s, e) => s + e.value, 0);
 
+  // Debt Rescue & Refinancing Alert (Credit Card Trap)
+  if (lower.includes('fatura') || lower.includes('cartao') || lower.includes('minimo') || lower.includes('rotativo') || lower.includes('atrasad')) {
+    return {
+      thinkSteps: [
+        { icon: '🚨', text: 'Alerta: Detectada menção a pagamento mínimo/rotativo de cartão.' },
+        { icon: '🔍', text: 'Analisando juros médios do rotativo (aprox. 14% ao mês)...' },
+        { icon: '🧮', text: 'Comparando com alternativas de crédito (Empréstimo pessoal a 3% ao mês)...' },
+        { icon: '🛡️', text: 'Ação preventiva: Gerando simulação de intervenção financeira.' },
+      ],
+      response: `🚨 **Aviso Importante:** Pagar apenas o mínimo do cartão pode criar uma bola de neve perigosa devido aos juros do crédito rotativo (que chegam a mais de 14% ao mês).\n\n💡 **Minha sugestão:** Se você não consegue pagar a fatura total, procure um empréstimo pessoal com taxa menor (ex: 3% ao mês) para quitar o cartão à vista. Isso pode te salvar centenas de Reais!`,
+      specialContent: { type: '__DEBT_WARNING__' },
+      replies: ['📊 Ver simulação detalhada', '💰 Onde consigo empréstimo?', '💸 Como negociar dívida?'],
+    };
+  }
+
+  // Point-of-Sale Decision Engine (Installments vs. Cash Discount)
+  if (lower.includes('comprar') || lower.includes('geladeira') || lower.includes('parcelado') || lower.includes('vista') || lower.includes('desconto')) {
+    // Attempt to extract values using regex, fallback to defaults
+    const priceMatch = text.match(/(?:por|de|valor)\s*(?:R\$)?\s*(\d+[\.,]?\d*)/i);
+    const installmentMatch = text.match(/(\d+)\s*x/i);
+    const discountMatch = text.match(/(\d+)\s*%/i);
+
+    const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 2000;
+    const installments = installmentMatch ? parseInt(installmentMatch[1], 10) : 12;
+    const discount = discountMatch ? parseFloat(discountMatch[1]) : 10;
+    
+    const cashPrice = price * (1 - discount / 100);
+    const saved = price - cashPrice;
+    const currentBalance = totalIncome - totalExpenses; // using current balance
+
+    // Logic: if current balance > cash price + safety margin (e.g., 500)
+    const canAffordCash = currentBalance >= (cashPrice + 500);
+
+    const recommendation = canAffordCash
+      ? `✅ **Pague à vista no Pix!** Você tem saldo suficiente. Pagando **${formatCurrency(cashPrice)}**, você economiza **${formatCurrency(saved)}**. Esse desconto de ${discount}% é muito maior do que o rendimento desse dinheiro parado na conta (aprox. 0.8% ao mês no CDI).`
+      : `⚠️ **Atenção:** Embora o desconto de ${discount}% seja bom (economia de ${formatCurrency(saved)}), pagar **${formatCurrency(cashPrice)}** à vista vai comprometer seu saldo atual e pode faltar para o aluguel ou contas básicas.\n\n💡 **Sugestão:** Aceite o parcelamento em ${installments}x para proteger seu fluxo de caixa e sua reserva de emergência.`;
+
+    return {
+      thinkSteps: [
+        { icon: '🛒', text: 'Análise de entrada: Decisão de compra no Ponto de Venda.' },
+        { icon: '🔢', text: `Extraindo dados: Valor total = R$${price}, Desconto = ${discount}%, Parcelas = ${installments}x` },
+        { icon: '🏦', text: `Consultando saldo líquido: R$${currentBalance}` },
+        { icon: '⚖️', text: 'Calculando Custo de Oportunidade (Desconto vs. Liquidez vs. CDI)...' },
+        { icon: '💡', text: 'Gerando recomendação baseada em fluxo de caixa...' },
+      ],
+      response: `Fiz as contas para você! 🧮\n\n${recommendation}`,
+      replies: ['📊 Como você calculou?', '💸 Voltar ao resumo'],
+    };
+  }
+
   // Grocery query
   if (lower.includes('mercado') || lower.includes('supermercado') || lower.includes('alimenta')) {
     const currentMercado = expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);

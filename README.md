@@ -65,10 +65,22 @@ GemmaFin doesn't just chat; it acts. Using Gemma 4's native `<|think|>` reasonin
 *   **Smart Suggestions (Quick Replies):** Buttons that guide the user to the next logical actions (e.g., *"How much did I spend at the grocery store?"*, *"View summary"*).
 *   **Personalized Tips:** Savings advice based on the actual consumption profile, such as brand substitution suggestions.
 
-### 🛠️ Technical Architecture
-*   **Engine:** Intelligent state machine in `useChat.js` simulating Gemma 4's agentic flow.
-*   **Historical Context:** 3-month simulated database for month-over-month comparisons.
-*   **Smart Engine:** Intent-understanding system for natural language queries.
+### 🛠️ System Architecture
+
+GemmaFin is designed as an offline-first Progressive Web App (PWA). Since the MVP does not connect to a real backend running the Gemma model, the "Agentic" behavior is rigorously simulated via a local state machine in React.
+
+*   **State Management (`useChat.js`)**: Acts as the orchestrator. It manages the conversational memory (messages array), the financial ledger (income/expenses arrays), and the current balance. Data is persisted in `LocalStorage` under `gemmafin_state`.
+*   **Smart Engine**: A deterministic NLP-like keyword matcher that simulates the capabilities of Gemma 4's intent recognition. It parses user text, extracts relevant entities (like prices or categories), and routes the query to specific "skills" (like generating a report or providing savings tips).
+*   **Agentic `<|think|>` Visualization**: The `ThinkingBlock` component explicitly renders the simulated internal reasoning steps of the Gemma model (e.g., data extraction, opportunity cost calculation) before presenting the final text response, building user trust.
+
+### 🧠 Advanced Reasoning Modules (New in MVP V2)
+
+We implemented specific high-level advisory modules to showcase the analytical power of the Gemma 4 E2B engine:
+
+1.  **Point-of-Sale Decision Engine (Installments vs. Cash)**:
+    When a user asks if they should buy an item in installments or take a cash discount, the engine extracts the price, discount, and installments. It cross-references this with the user's current liquid balance. It calculates the opportunity cost (comparing the discount against a standard CDI yield) and recommends the safest cash-flow option.
+2.  **Debt Rescue & Refinancing Alert**:
+    If the engine detects the user is paying only the "minimum" on their credit card (triggering the revolving interest trap at ~14% a.m.), it interrupts the flow with a `<WarningCard />`. This card visualizes the exponential cost of the debt and proactively suggests refinancing via a cheaper personal loan, potentially saving the user hundreds of Reais.
 
 ---
 
