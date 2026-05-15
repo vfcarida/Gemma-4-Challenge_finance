@@ -187,7 +187,7 @@ We implemented specific high-level advisory modules to showcase the analytical p
 
 ## 📺 Demo
 
-[Watch the Demo Video](https://youtu.be/O0pLj4ibITQ)  
+[Watch the Demo Video](https://youtu.be/qx22-iVnBVI)  
 
 ---
 
