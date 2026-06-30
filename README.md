@@ -117,6 +117,4 @@ To build a financial assistant for vulnerable populations, two things are absolu
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
 
-**Built with ❤️ for the Google Gemma Challenge 2026.**
