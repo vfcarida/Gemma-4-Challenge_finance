@@ -117,4 +117,5 @@ To support vulnerable populations, data privacy and low-latency interaction are 
 
 ## 📄 License
 
-Licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
