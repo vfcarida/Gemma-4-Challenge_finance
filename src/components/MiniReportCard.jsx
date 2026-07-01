@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { TrendingUp, TrendingDown, PieChart } from 'lucide-react';
-import { formatCurrency } from '../hooks/useChat';
+import { formatCurrency } from '../utils/formatters';
 
 // ── Custom Tooltip ──
 function CustomTooltip({ active, payload }) {
@@ -51,7 +51,7 @@ export default function MiniReportCard({ income, expenses }) {
           <div className="flex items-center gap-2 px-4 pt-4 pb-2">
             <PieChart className="w-4 h-4 text-accent" />
             <h3 className="text-sm font-semibold text-text-primary">
-              📊 Mini Relatório
+              📊 Mini Report
             </h3>
           </div>
 
@@ -61,7 +61,7 @@ export default function MiniReportCard({ income, expenses }) {
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingUp className="w-3.5 h-3.5 text-income" />
                 <span className="text-[10px] uppercase tracking-wider text-income font-medium">
-                  Receitas
+                  Income
                 </span>
               </div>
               <p className="text-lg font-bold text-income">
@@ -72,7 +72,7 @@ export default function MiniReportCard({ income, expenses }) {
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingDown className="w-3.5 h-3.5 text-expense" />
                 <span className="text-[10px] uppercase tracking-wider text-expense font-medium">
-                  Despesas
+                  Expenses
                 </span>
               </div>
               <p className="text-lg font-bold text-expense">
@@ -123,7 +123,7 @@ export default function MiniReportCard({ income, expenses }) {
           {/* Net balance */}
           <div className="px-4 pb-4 pt-1">
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-              <span className="text-xs text-text-secondary">Saldo líquido</span>
+              <span className="text-xs text-text-secondary">Net balance</span>
               <span
                 className={`text-sm font-bold ${
                   net >= 0 ? 'text-income' : 'text-danger'

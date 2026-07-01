@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
-import { formatCurrency } from '../hooks/useChat';
+import { formatCurrency } from '../utils/formatters';
 
 export default function ComparisonCard({ data }) {
   const { category, current, previous, prev2 } = data;
@@ -8,8 +8,8 @@ export default function ComparisonCard({ data }) {
 
   const months = [
     { label: 'Mar', value: prev2 || 0 },
-    { label: 'Abr', value: previous },
-    { label: 'Mai', value: current },
+    { label: 'Apr', value: previous },
+    { label: 'May', value: current },
   ];
   const maxVal = Math.max(...months.map((m) => m.value), 1);
 
@@ -20,7 +20,7 @@ export default function ComparisonCard({ data }) {
           <div className="px-4 pt-4 pb-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-text-primary">
-                📈 Comparativo: {category}
+                📈 Comparison: {category}
               </h3>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${increased ? 'bg-red-500/15 text-red-400' : 'bg-green-500/15 text-green-400'}`}>
                 {increased ? '↑' : '↓'} {Math.abs(pctChange)}%
@@ -53,8 +53,8 @@ export default function ComparisonCard({ data }) {
               {increased ? <TrendingUp className="w-4 h-4 text-red-400" /> : <TrendingDown className="w-4 h-4 text-green-400" />}
               <span className="text-xs text-text-secondary">
                 {increased
-                  ? `Aumento de ${formatCurrency(current - previous)} em relação ao mês passado`
-                  : `Economia de ${formatCurrency(previous - current)} em relação ao mês passado`}
+                  ? `Increase of ${formatCurrency(current - previous)} compared to last month`
+                  : `Savings of ${formatCurrency(previous - current)} compared to last month`}
               </span>
             </div>
           </div>

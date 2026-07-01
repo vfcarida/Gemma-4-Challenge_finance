@@ -1,4 +1,4 @@
-# GemmaFin - Breaking the Cycle of Debt with Conversational AI
+# GemmaFin — Production-Grade Conversational Financial Assistant
 
 ![GemmaFin Cover](./public/banner.jpg)
 
@@ -7,116 +7,114 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-orange)](https://web.dev/progressive-web-apps/)
 [![Architecture: Clean](https://img.shields.io/badge/Architecture-Clean-brightgreen)]()
 [![State Management: Resilient](https://img.shields.io/badge/State-Resilient-blue)]()
+[![Test Suite: Passing](https://img.shields.io/badge/Tests-Passing-success)]()
 
-> **An AI-powered personal finance Progressive Web App (PWA) specifically designed for low-income Brazilian families and informal workers. It leverages the multimodal power of Gemma 4 E2B to turn financial management from a burden into a conversation.**
+> **An AI-powered personal finance Progressive Web App (PWA) specifically designed for low-income families and informal workers. It leverages the multimodal power of Gemma 4 E2B to turn financial tracking and planning from a cognitive burden into a simple, natural conversation.**
 
 ---
 
 ## 📖 Executive Summary
 
-In 2026, Brazil faces a structural household debt crisis. A staggering **80.9% of families are in debt**. Traditional budgeting apps have failed because they require high financial literacy and impose severe cognitive friction.
+Conventional personal finance applications fail because they impose excessive cognitive friction, requiring rigorous manual input, transaction categorization, and a high degree of financial literacy. This entry barrier is especially high for informal workers, who operate in fast-paced cash-and-Pix environments and struggle to track dynamic earnings.
 
-**GemmaFin** subverts this paradigm. Built specifically for low-income families and informal workers, GemmaFin is a Progressive Web App (PWA) that mimics a simple messaging interface. Instead of filling out spreadsheets, the user simply "talks" to the app:
-
-*   **Audio Inputs for the Informal Economy:** Send a voice memo about daily earnings and expenses.
-*   **Visual Inputs for Messy Realities:** Snap a photo of a crumpled grocery receipt or a bank statement.
-*   **Real-Time Point-of-Sale Advisor:** Real-time AI advice on whether to use installments or pay cash.
-*   **Debt Rescue & Refinancing:** Proactive interventions against high-interest revolving credit.
+**GemmaFin** subverts this paradigm by providing a clean, messaging-based interface designed to be as simple as sending a chat message:
+* **Simulated Voice Transcription:** Users can record audio memos reporting earnings and expenses directly (e.g., informal day jobs, groceries, haircuts).
+* **Vision OCR Processing:** Users can snap photos of crumpled receipts or bank statements, which are read and incorporated into the ledger.
+* **Point-of-Sale Opportunity Cost Engine:** Immediate feedback comparing Pix cash discounts against card installments.
+* **Revolving Debt Prevention:** Multi-month simulations that warn users of the dangers of card minimum payments and propose cheaper refinancing alternatives.
 
 ---
 
 ## 🛠️ System Architecture
 
-GemmaFin is designed with **Clean Architecture** as an offline-first Progressive Web App (PWA), isolating core business logic from UI components to ensure O(1) performance calculations and resilient state management.
+GemmaFin is designed around the principles of **Clean Architecture** and strict separation of concerns, decoupling UI presentation from state orchestration, parsing, and data validation.
 
 ```mermaid
-graph TD;
-    subgraph UI Layer
-        A[App.jsx] --> B[useChat.js Hook];
-        B --> C[Chat UI Components];
-    end
+sequenceDiagram
+    autonumber
+    actor User as User Interface (React)
+    participant Hook as useChat Hook (Orchestration)
+    participant Engine as SmartEngine (Rules/Intents)
+    participant Storage as StorageService (Resilient persistence)
+
+    User->>Hook: Sends Text/Audio/Image Input
+    activate Hook
     
-    subgraph Services Layer
-        B -->|Delegates processing| D[SmartEngine.js];
-        B -->|Delegates state| E[StorageService.js];
-    end
-    
-    subgraph Business Logic
-        D -->|Intent Routing Pattern| F[Cognitive Handlers];
-        F -->|O 1 Aggregations| G[Financial Models];
+    rect rgb(20, 30, 40)
+        note over Hook, Engine: Core Intent Parsing
+        Hook->>Engine: processInput(text, context)
+        activate Engine
+        Engine->>Engine: Run strict boundary & type guards
+        Engine->>Engine: Run Bilingual regex matching (PT/EN)
+        Engine-->>Hook: Return intent, response text, visual cards
+        deactivate Engine
     end
 
-    subgraph Infrastructure
-        E -->|Safe serialization/quota check| H[LocalStorage / SQLite];
+    Hook->>User: Render chatbot text & interactive UI cards
+    
+    rect rgb(20, 40, 30)
+        note over Hook, Storage: State Resiliency
+        Hook->>Storage: saveState(updatedState)
+        activate Storage
+        Storage->>Storage: Validate schema & serialize JSON
+        Storage-->>Hook: Acknowledge safe write
+        deactivate Storage
     end
+    deactivate Hook
 ```
 
-### Architecture Improvements
-- **Clean Architecture & Decoupling:** `useChat.js` now acts solely as a UI orchestrator. The heavy lifting for intent recognition and cognitive processing is delegated to `SmartEngine.js`.
-- **Resilient State Persistence:** `StorageService.js` handles schema validation, quota limit errors, and fallback recovery.
-- **Optimized Algorithms:** $O(n^2)$ bottlenecks were replaced with $O(1)$ lazy evaluation within `SmartEngine.js`, vastly improving the performance over long chat sessions.
+### Core Architecture Enhancements
+1. **Decoupled Business Logic**: Presentation hooks like [useChat.js](file:///c:/Users/vinicius/Documents/GeminiCode/Gemma-4-Challenge_finance/src/hooks/useChat.js) manage only user experience and transition delays. Core logic and natural language parsing are fully isolated in [SmartEngine.js](file:///c:/Users/vinicius/Documents/GeminiCode/Gemma-4-Challenge_finance/src/services/SmartEngine.js).
+2. **Global Input Protection**: Safe boundary guards filter inputs in the processing engine. Any `null`, `undefined`, or structural mismatches fall back safely without triggering runtime type exceptions.
+3. **Resilient Local Storage**: The [StorageService.js](file:///c:/Users/vinicius/Documents/GeminiCode/Gemma-4-Challenge_finance/src/services/StorageService.js) runs structural type validation on load, instantly discarding corrupted payloads and preventing storage-related UI crashes.
+4. **Bilingual Matching Engine**: Supports query matching in both English and Portuguese, ensuring that inputs from the demo simulation work seamlessly while replying entirely in International English.
 
 ---
 
 ## ⚙️ Getting Started
 
 ### Prerequisites
-*   Node.js (v20 or higher)
-*   npm or yarn
+* **Node.js** (v20 or higher)
+* **npm** or **yarn**
 
 ### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/gemmafin.git
-   ```
-2. Install dependencies:
+1. Install project dependencies:
    ```bash
    npm install
    ```
-3. Run the development server:
+2. Launch the development server:
    ```bash
    npm run dev
    ```
-4. Build for production (PWA):
+3. Build for production (compiles PWA configuration and static assets):
    ```bash
    npm run build
    ```
-5. Run Tests:
+4. Run the automated unit test suite (Vitest):
    ```bash
    npm run test
    ```
 
 ---
 
-## 🧠 How I Used Gemma 4
+## 🧠 How Gemma 4 E2B Powers GemmaFin
 
-To build a financial assistant for vulnerable populations, two things are absolutely non-negotiable: **Privacy and Zero-Friction Multimodality**. For these reasons, the **Gemma 4 E2B** (Effective 2 Billion) model was the perfect and only logical fit for this architecture.
+To support vulnerable populations, data privacy and low-latency interaction are non-negotiable. The local execution capability of the **Gemma 4 E2B** model makes it the ideal fit for this architecture:
 
-*   **On-Device Privacy (Zero Data Exposure):** Financial data is highly sensitive. The E2B model is optimized for edge devices and runs locally with an incredibly small memory footprint.
-*   **Native Audio & Vision Understanding:** Gemma 4 E2B natively supports text, high-resolution images, and raw audio.
-*   **Agentic Workflows via `<|think|>` and Function Calling:** GemmaFin uses native structured JSON function calling to autonomously trigger the local ledger updates.
+* **On-Device Multimodal Privacy**: User financial records never leave the local environment. Multimodal parsing (audio transcriptions and vision OCR) is designed to run locally.
+* **Agentic Thought Processing (`<|think|>` block)**: Prior to returning an action, the agent executes chain-of-thought steps. In GemmaFin, this is visually rendered to build trust and explain the financial advice transparently.
 
 ---
 
-## 🎯 Demo Flow (End-to-End)
-1.  **Welcome & Context:** The user is greeted by GemmaFin.
-2.  **Multimodal Capture (Audio):** The user triggers an audio simulation (e.g., reporting a 'bico' of R$ 200).
-3.  **Agentic Reasoning (`<|think|>`):** The AI displays its internal thought process.
-4.  **Multimodal Capture (Image):** The user sends a bank statement screenshot.
-5.  **Proactive Insight:** GemmaFin detects an 11% increase in grocery spending.
-6.  **Complex Advisory (POS Engine):** The user asks if they should buy a fridge in installments or cash.
-7.  **Debt Rescue Alert:** AI triggers a visual warning card comparing revolving interest vs. a personal loan.
-
-## 📺 Demo
-
-[Watch the Demo Video](https://youtu.be/qx22-iVnBVI)  
+## 📺 Demonstration Flow
+1. **Welcome**: AI initiates the chat and prompts the user to record daily income/expenses.
+2. **Audio Transcription**: User reports informal service earnings and personal care spending.
+3. **Receipt Processing**: User uploads a supermarket statement receipt which is read via vision simulation.
+4. **Interactive Queries**: User types custom financial questions (e.g., about installments or card bills).
+5. **Proactive Intervention**: AI alerts the user of credit card revolving debt risks with comparison charts.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ for the Google Gemma Challenge 2026.**
+Licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

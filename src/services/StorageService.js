@@ -16,7 +16,23 @@ export const StorageService = {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return null;
       const parsed = JSON.parse(saved);
-      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+      if (typeof parsed !== 'object' || Array.isArray(parsed) || parsed === null) {
+        return null;
+      }
+      // Schema validation/type protection to prevent corrupted state injections
+      if (parsed.messages !== undefined && !Array.isArray(parsed.messages)) {
+        return null;
+      }
+      if (parsed.expenses !== undefined && !Array.isArray(parsed.expenses)) {
+        return null;
+      }
+      if (parsed.income !== undefined && !Array.isArray(parsed.income)) {
+        return null;
+      }
+      if (parsed.balance !== undefined && typeof parsed.balance !== 'number') {
+        return null;
+      }
+      if (parsed.demoPhase !== undefined && typeof parsed.demoPhase !== 'string') {
         return null;
       }
       return parsed;

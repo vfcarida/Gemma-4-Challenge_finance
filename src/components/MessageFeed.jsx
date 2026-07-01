@@ -25,7 +25,7 @@ export default function MessageFeed({
   return (
     <div ref={scrollRef} className="flex-1 overflow-y-auto chat-bg-pattern px-3 py-4 space-y-2" id="message-feed">
       <div className="flex justify-center mb-2">
-        <span className="px-3 py-1 rounded-lg bg-panel-header/80 text-[11px] text-text-muted shadow-sm">Hoje</span>
+        <span className="px-3 py-1 rounded-lg bg-panel-header/80 text-[11px] text-text-muted shadow-sm">Today</span>
       </div>
 
       {messages.map((msg, idx) => {

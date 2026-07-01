@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
-import { formatCurrency } from '../hooks/useChat';
+import { formatCurrency } from '../utils/formatters';
 
 // ── Custom Tooltip for detailed month-over-month data ──
 function CustomTooltip({ active, payload, label }) {
@@ -31,9 +31,9 @@ export default function FullReportCard({ income, expenses, historicalData }) {
   const prev2Expenses = prev2Month.expenses.reduce((s, e) => s + e.value, 0);
 
   const chartData = [
-    { month: 'Mar', Receitas: prev2Income, Despesas: prev2Expenses },
-    { month: 'Abr', Receitas: prevIncome, Despesas: prevExpenses },
-    { month: 'Mai', Receitas: totalIncome, Despesas: totalExpenses },
+    { month: 'Mar', Income: prev2Income, Expenses: prev2Expenses },
+    { month: 'Apr', Income: prevIncome, Expenses: prevExpenses },
+    { month: 'May', Income: totalIncome, Expenses: totalExpenses },
   ];
 
   // Category breakdown with automated comparison logic
@@ -57,23 +57,23 @@ export default function FullReportCard({ income, expenses, historicalData }) {
         <div className="glass-card rounded-lg overflow-hidden">
           <div className="flex items-center gap-2 px-4 pt-4 pb-1">
             <Calendar className="w-4 h-4 text-accent" />
-            <h3 className="text-sm font-semibold text-text-primary">📊 Relatório Mensal — Maio</h3>
+            <h3 className="text-sm font-semibold text-text-primary">📊 Monthly Report — May</h3>
           </div>
 
           {/* Monthly Financial Summary Cards */}
           <div className="grid grid-cols-2 gap-2 px-4 py-2">
             <div className="bg-income/10 rounded-lg p-2.5 border border-income/20">
-              <span className="text-[10px] uppercase tracking-wider text-income font-medium">Receitas</span>
+              <span className="text-[10px] uppercase tracking-wider text-income font-medium">Income</span>
               <p className="text-base font-bold text-income">{formatCurrency(totalIncome)}</p>
               <span className={`text-[10px] ${incomeChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {incomeChange >= 0 ? '↑' : '↓'} {Math.abs(incomeChange)}% vs Abr
+                {incomeChange >= 0 ? '↑' : '↓'} {Math.abs(incomeChange)}% vs Apr
               </span>
             </div>
             <div className="bg-expense/10 rounded-lg p-2.5 border border-expense/20">
-              <span className="text-[10px] uppercase tracking-wider text-expense font-medium">Despesas</span>
+              <span className="text-[10px] uppercase tracking-wider text-expense font-medium">Expenses</span>
               <p className="text-base font-bold text-expense">{formatCurrency(totalExpenses)}</p>
               <span className={`text-[10px] ${expenseChange <= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {expenseChange > 0 ? '↑' : '↓'} {Math.abs(expenseChange)}% vs Abr
+                {expenseChange > 0 ? '↑' : '↓'} {Math.abs(expenseChange)}% vs Apr
               </span>
             </div>
           </div>
@@ -87,15 +87,15 @@ export default function FullReportCard({ income, expenses, historicalData }) {
                 <YAxis tick={{ fill: '#8696a0', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
                 <Tooltip content={<CustomTooltip />} cursor={false} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: '10px', color: '#8696a0' }} />
-                <Bar dataKey="Receitas" fill="#00a884" radius={[3, 3, 0, 0]} maxBarSize={24} />
-                <Bar dataKey="Despesas" fill="#f97316" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                <Bar dataKey="Income" fill="#00a884" radius={[3, 3, 0, 0]} maxBarSize={24} />
+                <Bar dataKey="Expenses" fill="#f97316" radius={[3, 3, 0, 0]} maxBarSize={24} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           {/* Per-Category Trend Breakdown */}
           <div className="px-4 pb-2">
-            <p className="text-[10px] uppercase tracking-wider text-text-muted font-medium mb-2">Despesas por categoria</p>
+            <p className="text-[10px] uppercase tracking-wider text-text-muted font-medium mb-2">Expenses by category</p>
             <div className="space-y-1.5">
               {categoryComparison.map((c, i) => (
                 <div key={i} className="flex items-center justify-between py-1 px-2 rounded bg-white/5">
@@ -116,7 +116,7 @@ export default function FullReportCard({ income, expenses, historicalData }) {
           {/* Net Liquid Balance Footer */}
           <div className="px-4 pb-4 pt-1">
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-              <span className="text-xs text-text-secondary">Saldo líquido</span>
+              <span className="text-xs text-text-secondary">Net balance</span>
               <span className={`text-sm font-bold ${totalIncome - totalExpenses >= 0 ? 'text-income' : 'text-danger'}`}>
                 {formatCurrency(totalIncome - totalExpenses)}
               </span>

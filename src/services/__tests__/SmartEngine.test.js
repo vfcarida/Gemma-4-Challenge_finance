@@ -27,19 +27,30 @@ describe('SmartEngine', () => {
     expect(result.response).toContain('Pay in cash');
   });
 
-  it('should handle null/empty pointers in text safely by throwing or fallback', () => {
-    // Injecting null shouldn't crash if we have boundary tests
-    try {
-      // If the caller accidentally passes null, the SmartEngine should handle it or the system should catch it
-      SmartEngine.processInput(null, mockContext);
-    } catch (e) {
-      expect(e).toBeDefined(); // It will throw because text.toLowerCase() on null fails. Ideally, UI handles this, but let's assume it.
-    }
+  it('should handle null/empty pointers in text safely by returning fallback instead of throwing', () => {
+    // Injecting null shouldn't crash
+    const result = SmartEngine.processInput(null, mockContext);
+    expect(result).toBeDefined();
+    expect(result.response).toContain("I'm still learning");
+  });
+
+  it('should handle missing or invalid context properties gracefully', () => {
+    const result = SmartEngine.processInput('quanto gastei', null);
+    expect(result.response.replace(/\u00a0/g, ' ')).toContain('R$ 0,00'); // Safe fallback to 0
+  });
+
+  it('should handle bilingual queries (English/Portuguese) for credit card intent', () => {
+    const resultPT = SmartEngine.processInput('minha fatura do cartao atrasou', mockContext);
+    const resultEN = SmartEngine.processInput('my credit card payment is late', mockContext);
+
+    expect(resultPT.specialContent.type).toBe('__DEBT_WARNING__');
+    expect(resultEN.specialContent.type).toBe('__DEBT_WARNING__');
+    expect(resultPT.response).toBe(resultEN.response);
   });
 
   it('should calculate totals in O(1) lazy eval correctly without crashing on empty arrays', () => {
     const emptyContext = { income: [], expenses: [] };
     const result = SmartEngine.processInput('quanto gastei', emptyContext);
-    expect(result.response).toContain('R$ 0.00'); // 0 formatted
+    expect(result.response.replace(/\u00a0/g, ' ')).toContain('R$ 0,00'); // 0 formatted
   });
 });

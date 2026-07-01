@@ -1,4 +1,4 @@
-import { formatCurrency } from '../hooks/useChat';
+import { formatCurrency } from '../utils/formatters';
 
 function CircularProgress({ percentage, color }) {
   const radius = 28;
@@ -34,8 +34,8 @@ export default function BudgetGoalCard() {
       <div className="max-w-[85%] md:max-w-[65%] w-full">
         <div className="glass-card rounded-lg overflow-hidden">
           <div className="px-4 pt-4 pb-2">
-            <h3 className="text-sm font-semibold text-text-primary">🎯 Metas de Orçamento — Maio</h3>
-            <p className="text-[10px] text-text-muted mt-0.5">Baseado no seu histórico dos últimos 3 meses</p>
+            <h3 className="text-sm font-semibold text-text-primary">🎯 Budget Goals — May</h3>
+            <p className="text-[10px] text-text-muted mt-0.5">Based on your history from the last 3 months</p>
           </div>
 
           <div className="px-4 py-2 space-y-3">
@@ -50,17 +50,17 @@ export default function BudgetGoalCard() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-text-primary">{g.icon} {g.category}</span>
-                      {over && <span className="text-[10px] font-bold text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded">ACIMA</span>}
+                      {over && <span className="text-[10px] font-bold text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded">OVER</span>}
                     </div>
                     <div className="flex items-center justify-between mt-0.5">
                       <span className="text-xs text-text-secondary">
-                        {g.spent > 0 ? `${formatCurrency(g.spent)} de ${formatCurrency(g.limit)}` : `Meta: ${formatCurrency(g.limit)}`}
+                        {g.spent > 0 ? `${formatCurrency(g.spent)} of ${formatCurrency(g.limit)}` : `Limit: ${formatCurrency(g.limit)}`}
                       </span>
                       {g.spent > 0 && over && (
-                        <span className="text-[10px] text-red-400">+{formatCurrency(g.spent - g.limit)} acima</span>
+                        <span className="text-[10px] text-red-400">+{formatCurrency(g.spent - g.limit)} over</span>
                       )}
                       {g.spent > 0 && !over && (
-                        <span className="text-[10px] text-green-400">Resta {formatCurrency(g.limit - g.spent)}</span>
+                        <span className="text-[10px] text-green-400">{formatCurrency(g.limit - g.spent)} left</span>
                       )}
                     </div>
                   </div>
@@ -71,7 +71,7 @@ export default function BudgetGoalCard() {
 
           <div className="px-4 pb-4 pt-1">
             <p className="text-[10px] text-text-muted text-center">
-              💡 Metas calculadas automaticamente pelo Gemma 4 baseado no seu perfil
+              💡 Goals calculated automatically by Gemma 4 based on your profile
             </p>
           </div>
         </div>

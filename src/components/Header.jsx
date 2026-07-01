@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Sparkles, RotateCcw, ChevronDown } from 'lucide-react';
-import { formatCurrency } from '../hooks/useChat';
+import { formatCurrency } from '../utils/formatters';
 
 export default function Header({ balance, previousBalance, onReset }) {
   const [displayBalance, setDisplayBalance] = useState(previousBalance ?? balance);
@@ -59,7 +59,7 @@ export default function Header({ balance, previousBalance, onReset }) {
       <div className="flex items-center gap-3">
         <div className="text-right">
           <p className="text-[10px] uppercase tracking-wider text-text-muted font-medium">
-            Saldo Atual
+            Current Balance
           </p>
           <p
             className={`text-lg font-bold tabular-nums transition-all duration-300 ${
@@ -76,7 +76,7 @@ export default function Header({ balance, previousBalance, onReset }) {
         <button
           onClick={onReset}
           className="p-2 rounded-full hover:bg-border/50 text-text-secondary hover:text-text-primary transition-colors"
-          title="Reiniciar conversa"
+          title="Reset chat"
           id="reset-button"
         >
           <RotateCcw className="w-4 h-4" />

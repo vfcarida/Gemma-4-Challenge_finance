@@ -41,27 +41,33 @@ export const SmartEngine = {
    * @param {Object} context 
    * @returns {Object} Response object with steps, text, and replies.
    */
-  processInput: (text, { income, expenses }) => {
-    const lower = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  processInput: (text, context) => {
+    // ── Strict boundary validation / Type protection ──
+    const safeText = typeof text === 'string' ? text : '';
+    const safeContext = context && typeof context === 'object' ? context : {};
+    const safeIncome = Array.isArray(safeContext.income) ? safeContext.income : [];
+    const safeExpenses = Array.isArray(safeContext.expenses) ? safeContext.expenses : [];
+
+    const lower = safeText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
     // Memoized lazy calculations to avoid O(n) loops if the intent doesn't require them.
     let _totalIncome = null;
     let _totalExpenses = null;
     
     const getTotalIncome = () => {
-      if (_totalIncome === null) _totalIncome = income.reduce((s, i) => s + i.value, 0);
+      if (_totalIncome === null) _totalIncome = safeIncome.reduce((s, i) => s + i.value, 0);
       return _totalIncome;
     };
     
     const getTotalExpenses = () => {
-      if (_totalExpenses === null) _totalExpenses = expenses.reduce((s, e) => s + e.value, 0);
+      if (_totalExpenses === null) _totalExpenses = safeExpenses.reduce((s, e) => s + e.value, 0);
       return _totalExpenses;
     };
 
-    // Intent Router Array
+    // Intent Router Array supporting both Portuguese and English
     const intents = [
       {
-        match: /fatura|cartao|minimo|rotativo|atrasad/i,
+        match: /fatura|cartao|minimo|rotativo|atrasad|card|credit|minimum|revolving|late/i,
         handler: () => ({
           thinkSteps: [
             { icon: '🚨', text: 'Alert: Detected mention of credit card minimum payment/revolving credit.' },
@@ -75,11 +81,11 @@ export const SmartEngine = {
         })
       },
       {
-        match: /comprar|geladeira|parcelado|vista|desconto/i,
+        match: /comprar|geladeira|parcelado|vista|desconto|buy|purchase|installment|discount|cash/i,
         handler: () => {
-          const priceMatch = text.match(/(?:por|de|valor)\s*(?:R\$)?\s*(\d+[\.,]?\d*)/i);
-          const installmentMatch = text.match(/(\d+)\s*x/i);
-          const discountMatch = text.match(/(\d+)\s*%/i);
+          const priceMatch = safeText.match(/(?:por|de|valor|price|value)\s*(?:R\$|\$)?\s*(\d+[\.,]?\d*)/i);
+          const installmentMatch = safeText.match(/(\d+)\s*(?:x|installments|times)/i);
+          const discountMatch = safeText.match(/(\d+)\s*%/i);
 
           const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 2000;
           const installments = installmentMatch ? parseInt(installmentMatch[1], 10) : 12;
@@ -91,15 +97,13 @@ export const SmartEngine = {
 
           const canAffordCash = currentBalance >= (cashPrice + 500);
 
-          const recommendation = canAffordCash
-            ? `✅ **Pay in cash via Pix!** You have enough balance. Paying **${formatCurrency(cashPrice)}**, you save **${formatCurrency(saved)}**. This ${discount}% discount is much higher than the yield of keeping this money in the account (approx. 0.8% per month).`
-            : `⚠️ **Attention:** Although the ${discount}% discount is good (savings of ${formatCurrency(saved)}), paying **${formatCurrency(cashPrice)}** in cash will compromise your current balance and you might fall short for rent or basic bills.\n\n💡 **Suggestion:** Accept the installment plan of ${installments}x to protect your cash flow and emergency reserve.`;
+          const recommendation = canAffordAffordCash(canAffordCash, cashPrice, saved, discount, installments);
 
           return {
             thinkSteps: [
               { icon: '🛒', text: 'Input Analysis: Point of Sale purchase decision.' },
-              { icon: '🔢', text: `Extracting data: Total Value = R$${price}, Discount = ${discount}%, Installments = ${installments}x` },
-              { icon: '🏦', text: `Checking net balance: R$${currentBalance}` },
+              { icon: '🔢', text: `Extracting data: Total Value = R$ ${price}, Discount = ${discount}%, Installments = ${installments}x` },
+              { icon: '🏦', text: `Checking net balance: R$ ${currentBalance}` },
               { icon: '⚖️', text: 'Calculating Opportunity Cost (Discount vs. Liquidity vs. Yield)...' },
               { icon: '💡', text: 'Generating recommendation based on cash flow...' },
             ],
@@ -109,9 +113,9 @@ export const SmartEngine = {
         }
       },
       {
-        match: /mercado|supermercado|alimenta/i,
+        match: /mercado|supermercado|alimenta|grocery|groceries|supermarket|food/i,
         handler: () => {
-          const currentMercado = expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
+          const currentMercado = safeExpenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
           const prevMercado = HISTORICAL_DATA['abril'].expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
           const prev2Mercado = HISTORICAL_DATA['março'].expenses.filter(e => e.category === 'Mercado').reduce((s, e) => s + e.value, 0);
           const pctChange = prevMercado > 0 ? Math.round(((currentMercado - prevMercado) / prevMercado) * 100) : 0;
@@ -119,7 +123,7 @@ export const SmartEngine = {
             thinkSteps: [
               { icon: '📝', text: 'Input Analysis: Query about Groceries.' },
               { icon: '🔍', text: 'Fetching expense history: Groceries/Food...' },
-              { icon: '📊', text: `Data found: Mar R$${prev2Mercado} → Apr R$${prevMercado} → May R$${currentMercado}` },
+              { icon: '📊', text: `Data found: Mar R$ ${prev2Mercado} → Apr R$ ${prevMercado} → May R$ ${currentMercado}` },
               { icon: '📈', text: `Variation from previous month: ${pctChange > 0 ? '+' : ''}${pctChange}%` },
               { icon: '💡', text: 'Generating comparative analysis...' },
             ],
@@ -130,7 +134,7 @@ export const SmartEngine = {
         }
       },
       {
-        match: /resumo|relatorio|visao geral|ver resumo/i,
+        match: /resumo|relatorio|visao geral|ver resumo|summary|report|overview/i,
         handler: () => ({
           thinkSteps: [
             { icon: '📝', text: 'Input Analysis: Financial summary request.' },
@@ -144,7 +148,7 @@ export const SmartEngine = {
         })
       },
       {
-        match: /meta|orcamento|objetivo|definir/i,
+        match: /meta|orcamento|objetivo|definir|goal|budget|limit|set goal/i,
         handler: () => ({
           thinkSteps: [
             { icon: '📝', text: 'Input Analysis: Goal/Budget definition.' },
@@ -158,7 +162,7 @@ export const SmartEngine = {
         })
       },
       {
-        match: /dica|economizar|economia|poupar|guardar/i,
+        match: /dica|economizar|economia|poupar|guardar|tip|save|saving/i,
         handler: () => ({
           thinkSteps: [
             { icon: '📝', text: 'Input Analysis: Financial tips request.' },
@@ -170,9 +174,9 @@ export const SmartEngine = {
         })
       },
       {
-        match: /quanto gastei|gastos|despesa/i,
+        match: /quanto gastei|gastos|despesa|spend|expense|spent/i,
         handler: () => {
-          const breakdown = expenses.reduce((acc, e) => {
+          const breakdown = safeExpenses.reduce((acc, e) => {
             acc[e.category] = (acc[e.category] || 0) + e.value;
             return acc;
           }, {});
@@ -181,7 +185,7 @@ export const SmartEngine = {
             thinkSteps: [
               { icon: '📝', text: 'Input Analysis: Expenses query.' },
               { icon: '🔍', text: 'Fetching all expenses for the month...' },
-              { icon: '📊', text: `Total of ${expenses.length} transactions found.` },
+              { icon: '📊', text: `Total of ${safeExpenses.length} transactions found.` },
             ],
             response: `Your expenses in **May** so far: 💸\n\n${lines}\n\n📊 **Total:** ${formatCurrency(getTotalExpenses())}`,
             replies: ['📊 Compare with last month', '🎯 Set goal', '💡 Saving tips'],
@@ -189,9 +193,9 @@ export const SmartEngine = {
         }
       },
       {
-        match: /quanto ganhei|receita|renda|ganho/i,
+        match: /quanto ganhei|receita|renda|ganho|earn|income|revenue/i,
         handler: () => {
-          const breakdown = income.reduce((acc, i) => {
+          const breakdown = safeIncome.reduce((acc, i) => {
             acc[i.category] = (acc[i.category] || 0) + i.value;
             return acc;
           }, {});
@@ -200,7 +204,7 @@ export const SmartEngine = {
             thinkSteps: [
               { icon: '📝', text: 'Input Analysis: Income query.' },
               { icon: '🔍', text: 'Fetching all income sources for the month...' },
-              { icon: '📊', text: `Total of ${income.length} income sources found.` },
+              { icon: '📊', text: `Total of ${safeIncome.length} income sources found.` },
             ],
             response: `Your income in **May** so far: 💰\n\n${lines}\n\n📊 **Total:** ${formatCurrency(getTotalIncome())}`,
             replies: ['💸 View expenses', '📊 Complete summary', '🎯 Set goal'],
@@ -208,7 +212,7 @@ export const SmartEngine = {
         }
       },
       {
-        match: /extrato|transac|historico|moviment/i,
+        match: /extrato|transac|historico|moviment|statement|transactions|history/i,
         handler: () => ({
           thinkSteps: [
             { icon: '📝', text: 'Input Analysis: Statement request.' },
@@ -219,7 +223,7 @@ export const SmartEngine = {
         })
       },
       {
-        match: /ajuda|o que voce faz|o que vc faz|funcionalidade|como funciona/i,
+        match: /ajuda|o que voce faz|o que vc faz|funcionalidade|como funciona|help|features|how it works/i,
         handler: () => ({
           thinkSteps: [
             { icon: '📝', text: 'Input Analysis: Help request.' },
@@ -230,7 +234,7 @@ export const SmartEngine = {
         })
       },
       {
-        match: /^(oi|ola|bom dia|boa tarde|boa noite|eai|e ai|hey|hello)/i,
+        match: /^(oi|ola|bom dia|boa tarde|boa noite|eai|e ai|hey|hello|hi|greetings)/i,
         handler: () => ({
           thinkSteps: [],
           response: 'Hello! 😊 How can I help you with your finances? You can ask about expenses, income, or ask for tips!',
@@ -257,3 +261,10 @@ export const SmartEngine = {
     };
   }
 };
+
+// Helper function to extract purchase decision recommendation
+function canAffordAffordCash(canAffordCash, cashPrice, saved, discount, installments) {
+  return canAffordCash
+    ? `✅ **Pay in cash via Pix!** You have enough balance. Paying **${formatCurrency(cashPrice)}**, you save **${formatCurrency(saved)}**. This ${discount}% discount is much higher than the yield of keeping this money in the account (approx. 0.8% per month).`
+    : `⚠️ **Attention:** Although the ${discount}% discount is good (savings of ${formatCurrency(saved)}), paying **${formatCurrency(cashPrice)}** in cash will compromise your current balance and you might fall short for rent or basic bills.\n\n💡 **Suggestion:** Accept the installment plan of ${installments}x to protect your cash flow and emergency reserve.`;
+}

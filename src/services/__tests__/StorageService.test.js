@@ -1,6 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StorageService } from '../StorageService';
 
+// Mock browser LocalStorage and Storage prototype globally for Node environment
+class StorageMock {
+  constructor() {
+    this.store = {};
+  }
+  getItem(key) {
+    return this.store[key] || null;
+  }
+  setItem(key, value) {
+    this.store[key] = String(value);
+  }
+  removeItem(key) {
+    delete this.store[key];
+  }
+  clear() {
+    this.store = {};
+  }
+}
+
+const localStorageInstance = new StorageMock();
+Object.defineProperty(global, 'localStorage', { value: localStorageInstance, configurable: true });
+Object.defineProperty(global, 'Storage', { value: StorageMock, configurable: true });
+
 describe('StorageService', () => {
   beforeEach(() => {
     localStorage.clear();
